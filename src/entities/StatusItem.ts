@@ -1,9 +1,9 @@
 import { IsString } from "class-validator";
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, BaseEntity } from "typeorm";
 import { EntryToStatusItem } from "./EntryToStatusItem";
 
 @Entity({ name: 'status_item' })
-export class StatusItem {
+export class StatusItem extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
 

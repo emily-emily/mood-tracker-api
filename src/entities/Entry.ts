@@ -1,10 +1,10 @@
 import { IsInt } from "class-validator";
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany, BaseEntity } from "typeorm";
 import { Activity } from "./Activity";
 import { EntryToStatusItem } from "./EntryToStatusItem";
 
 @Entity({ name: 'entry' })
-export class Entry {
+export class Entry extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
 

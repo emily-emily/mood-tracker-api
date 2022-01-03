@@ -21,6 +21,8 @@ To revert a migration:
 ```npm run typeorm migration:revert```
 
 To generate a new migration:
-```npm run typeorm migration:generate <migration_name>```
+```npm run typeorm migration:generate -- -n <migration_name>```
 Note that this compares the current entities (path specified in `ormconfig.json` as `"entities"`) to the state of the current database.
 
+## Misc. TILs
+- For typescript type errors that would otherwise work in javascript, ignore them using `// @ts-ignore` in the line immediately preceding the line with the error.

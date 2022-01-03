@@ -1,10 +1,12 @@
 import 'reflect-metadata';
 import express from "express";
 import { useExpressServer } from 'routing-controllers';
-import { ActivityController } from './controllers/ActivityController';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { connectDb } from "./start/db";
+import { ActivityController } from './controllers/ActivityController';
+import { EntryController } from './controllers/EntryController';
+import { StatusController } from './controllers/StatusController';
 
 async function launch() {
   try {
@@ -18,6 +20,15 @@ async function launch() {
 
   app.use(cors());
   app.use(bodyParser.json());
+
+  useExpressServer(app, {
+    controllers: [ActivityController, EntryController, StatusController],
+  });
+
+  app.use((err: any, req: any, res: any, next: any) => {
+    console.error(err.stack)
+    res.status(500).send('Something broke!')
+  })
 
   // run express application
   let port = parseInt(process.env.PORT || "");

@@ -1,8 +1,8 @@
 import { IsString } from "class-validator";
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, BaseEntity } from "typeorm";
 
 @Entity({ name: 'activity' })
-export class Activity {
+export class Activity extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
 
