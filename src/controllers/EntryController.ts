@@ -8,20 +8,53 @@ import { EntryToStatusItem } from "../entities/EntryToStatusItem";
 @JsonController("/entry")
 export class EntryController {
   @Get("/")
-  public async getAll(
-    @Body({ required: true }) body : { from: Date, to: Date, max: number }
+  public async getEntry(
+    @Body({ required: true }) body : { from: Date, to: Date, max: number, activities: string[] }
   ) {
     // fill in default values
-    if (!body.max) body.max = 5;
     if (!body.from) body.from = new Date(0);
     if (!body.to) body.to = new Date();
+    if (!body.activities) body.activities = [];
 
-    const query = getManager().createQueryBuilder()
-      .select("*")
-      .from("entry", "entry")
+    // get activities
+    let actitivityIds : number[];
+    try {
+      actitivityIds = await Activity.findManyIdByName(body.activities);
+    }
+    catch(err : any) {
+      err.result = "error";
+      return err;
+    }
+    
+    let query = getManager().createQueryBuilder()
+      .select("entry.*")
+      .from((subQuery => { // find how many of the relevant activities each entry has
+        let subQ = subQuery
+          .select("entry_activity.entryId", "entryId")
+          .addSelect("COUNT(entry_activity.\"entryId\")", "matchingActivities")
+          .from("entry_activities_activity", "entry_activity")
+          .leftJoin("activity", "activity", "activity.id=entry_activity.\"activityId\"");
+        
+        for (let i in actitivityIds) {
+          let varName = "a" + i;
+          let varObj: { [key: string]: number; } = {};
+          varObj[varName] = actitivityIds[i];
+          subQ = subQ.orWhere("activity.id=:" + varName, varObj);
+        }
+
+        subQ = subQ
+          .groupBy("entry_activity.entryId");
+
+        return subQ;
+      }), "subq")
+      // we want all of the activities specified
+      .leftJoin("entry", "entry", "entry.id=subq.\"entryId\"")
       .where("\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
              { from: body.from.getTime(), to: body.to.getTime() })
-      .limit(body.max);
+      .andWhere("\"matchingActivities\"=:num", { num: actitivityIds.length })
+      .orderBy("entry.createdAt", "DESC");
+    if (body.max) query = query.limit(body.max);
+    // console.log(query.getQuery());
     return query.getRawMany();
   }
 
@@ -44,11 +77,8 @@ export class EntryController {
         let activities = [];
         if (item.activities) {
           for (let activityName of item.activities) {
-            let a = await queryRunner.manager.findOne(Activity, {name: activityName});
+            let a = await Activity.findByName(activityName);
   
-            if (a === undefined) {
-              throw { error: "Activity not found: '" + activityName + "'" };
-            }
             activities.push(a);
           }
         }

@@ -24,4 +24,8 @@ export class Entry extends BaseEntity {
 
   @UpdateDateColumn()
   public updatedAt!: Date;
+
+  public hasActivity(activity : string) {
+    return this.activities.find(a => a.name === activity) !== undefined;
+  }
 }
