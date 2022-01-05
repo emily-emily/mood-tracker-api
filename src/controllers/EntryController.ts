@@ -51,8 +51,8 @@ export class EntryController {
       .leftJoin("entry", "entry", "entry.id=subq.\"entryId\"")
       .where("\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
              { from: body.from.getTime(), to: body.to.getTime() })
-      .andWhere("\"matchingActivities\"=:num", { num: actitivityIds.length })
       .orderBy("entry.createdAt", "DESC");
+    if (actitivityIds.length > 0) query = query.andWhere("\"matchingActivities\"=:num", { num: actitivityIds.length });
     if (body.max) query = query.limit(body.max);
     // console.log(query.getQuery());
     return query.getRawMany();
@@ -61,14 +61,14 @@ export class EntryController {
   @HttpCode(201)
   @Post("/")
   public async createEntry(
-    @Body({ required: true }) items : [{date: Date, mood: number, activities: [string], statuses: [{name: string, value: number}]}]
+    @Body({ required: true }) items : [{date: number, mood: number, activities: [string], statuses: [{name: string, value: number}]}]
   ) {
     let returnValue;
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
     await queryRunner.connect();
 
-    queryRunner.startTransaction();
+    await queryRunner.startTransaction();
     try {
       for (let item of items) {
         const entry = new Entry();
@@ -106,7 +106,7 @@ export class EntryController {
 
         // save entry
         entry.mood = item.mood;
-        entry.createdAt = item.date;
+        entry.createdAt = item.date ? new Date(item.date * 1000) : new Date();
         entry.activities = activities
         await queryRunner.manager.save(entry);
 
@@ -122,6 +122,7 @@ export class EntryController {
       await queryRunner.rollbackTransaction();
       err.result = "error";
       returnValue = err;
+      console.log("Error: ", err)
     }
 
     await queryRunner.release();

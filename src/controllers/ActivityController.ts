@@ -1,4 +1,4 @@
-import { JsonController, Param, Body, Get, Post, Put, Delete, Res, HttpCode } from 'routing-controllers';
+import { JsonController, Body, Get, Post, HttpCode } from 'routing-controllers';
 import { Activity } from '../entities/Activity';
 import { getManager } from 'typeorm';
 
