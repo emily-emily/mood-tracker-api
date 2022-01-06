@@ -26,7 +26,7 @@ export class StatusController {
     }
     catch(err: any) {
       err.result = "error";
-      return err;
+      throw err;
     }
   }
 }

@@ -26,7 +26,7 @@ export class ActivityController {
     }
     catch(err: any) {
       err.result = "error";
-      return err;
+      throw err;
     }
   }
 }

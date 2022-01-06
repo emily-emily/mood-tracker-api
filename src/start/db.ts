@@ -10,7 +10,7 @@ export const connectDb = async (retries = 5) => {
       console.log("successfully connected to database.");
       break;
     }
-    catch (err) {
+    catch(err) {
       console.log(err);
       retries -= 1;
       console.log(`retries left: ${retries}`);

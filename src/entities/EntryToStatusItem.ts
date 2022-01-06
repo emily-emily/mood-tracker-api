@@ -1,4 +1,4 @@
-import { IsInt } from "class-validator";
+import { IsInt, IsNumber } from "class-validator";
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, BaseEntity } from "typeorm";
 import { Entry } from "./Entry";
 import { StatusItem } from "./StatusItem";
@@ -9,15 +9,15 @@ export class EntryToStatusItem extends BaseEntity {
   public id!: number;
 
   @IsInt({ always: true })
-  @Column()
+  @Column({ type: "int" })
   public entryId!: number;
 
   @IsInt({ always: true })
-  @Column()
-  public activityId!: number;
+  @Column({ type: "int" })
+  public statusItemId!: number;
 
-  @IsInt({ always: true })
-  @Column()
+  @IsNumber()
+  @Column({ type: "real" })
   public value!: number;
 
   @ManyToOne(() => Entry, entry => entry.statuses)

@@ -23,7 +23,7 @@ export class EntryController {
     }
     catch(err : any) {
       err.result = "error";
-      return err;
+      throw err;
     }
     
     let query = getManager().createQueryBuilder()
@@ -63,7 +63,6 @@ export class EntryController {
   public async createEntry(
     @Body({ required: true }) items : [{date: number, mood: number, activities: [string], statuses: [{name: string, value: number}]}]
   ) {
-    let returnValue;
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
     await queryRunner.connect();
@@ -100,7 +99,7 @@ export class EntryController {
             entryToStatusItem.entry = entry;
             entryToStatusItem.statusItem = s;
             entryToStatusItem.value = status.value;
-            statuses.push(s);
+            statuses.push(entryToStatusItem);
           }
         }
 
@@ -116,16 +115,15 @@ export class EntryController {
         }
       }
       await queryRunner.commitTransaction();
-      returnValue = { result: "success" };
+      await queryRunner.release();
+      return { result: "success" };
     }
     catch(err : any) {
       await queryRunner.rollbackTransaction();
       err.result = "error";
-      returnValue = err;
       console.log("Error: ", err)
+      await queryRunner.release();
+      throw (err);
     }
-
-    await queryRunner.release();
-    return returnValue;
   }
 }
