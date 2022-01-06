@@ -13,7 +13,7 @@ export class Entry extends BaseEntity {
   public mood!: number;
 
   @ManyToMany(() => Activity)
-  @JoinTable()
+  @JoinTable({ name: "entry_activity" })
   public activities!: Activity[];
 
   @OneToMany(() => EntryToStatusItem, status => status.entry)

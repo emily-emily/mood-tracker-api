@@ -32,7 +32,7 @@ export class EntryController {
         let subQ = subQuery
           .select("entry_activity.entryId", "entryId")
           .addSelect("COUNT(entry_activity.\"entryId\")", "matchingActivities")
-          .from("entry_activities_activity", "entry_activity")
+          .from("entry_activity", "entry_activity")
           .leftJoin("activity", "activity", "activity.id=entry_activity.\"activityId\"");
         
         for (let i in actitivityIds) {
