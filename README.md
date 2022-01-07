@@ -26,3 +26,4 @@ Note that this compares the current entities (path specified in `ormconfig.json`
 
 ## Misc. TILs
 - For typescript type errors that would otherwise work in javascript, ignore them using `// @ts-ignore` in the line immediately preceding the line with the error.
+- In Javascript, `Date.getTime` returns the unix timestamp in milliseconds, and Postgres `TO_TIMESTAMP` takes unix timestamp in seconds.

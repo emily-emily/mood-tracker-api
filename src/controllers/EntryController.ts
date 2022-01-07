@@ -9,11 +9,10 @@ import { EntryToStatusItem } from "../entities/EntryToStatusItem";
 export class EntryController {
   @Get("/")
   public async getEntry(
-    @Body({ required: true }) body : { from: Date, to: Date, max: number, activities: string[] }
+    @Body({ required: true }) body : { from: number, to: number, max: number, activities: string[] }
   ) {
-    // fill in default values
-    if (!body.from) body.from = new Date(0);
-    if (!body.to) body.to = new Date();
+    let from = body.from ? new Date(body.from * 1000) : new Date(0);
+    let to = body.to ? new Date(body.to * 1000) : new Date();
     if (!body.activities) body.activities = [];
 
     // get activities
@@ -50,7 +49,7 @@ export class EntryController {
       // we want all of the activities specified
       .leftJoin("entry", "entry", "entry.id=subq.\"entryId\"")
       .where("\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
-             { from: body.from.getTime(), to: body.to.getTime() })
+             { from: from.getTime(), to: to.getTime() })
       .orderBy("entry.createdAt", "DESC");
     if (actitivityIds.length > 0) query = query.andWhere("\"matchingActivities\"=:num", { num: actitivityIds.length });
     if (body.max) query = query.limit(body.max);

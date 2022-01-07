@@ -7,6 +7,7 @@ import { connectDb } from "./start/db";
 import { ActivityController } from './controllers/ActivityController';
 import { EntryController } from './controllers/EntryController';
 import { StatusController } from './controllers/StatusController';
+import { StatsController } from './controllers/StatController';
 
 async function launch() {
   try {
@@ -22,7 +23,7 @@ async function launch() {
   app.use(bodyParser.json());
 
   useExpressServer(app, {
-    controllers: [ActivityController, EntryController, StatusController],
+    controllers: [ActivityController, EntryController, StatusController, StatsController],
   });
 
   app.use((err: any, req: any, res: any, next: any) => {
