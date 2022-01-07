@@ -1,6 +1,7 @@
 import { Body, Get, InternalServerError, JsonController } from "routing-controllers";
 import { getManager } from "typeorm";
 import { Entry } from "../entities/Entry";
+import { StatusController } from "./StatusController";
 
 @JsonController("/stats")
 export class StatsController {
@@ -44,11 +45,11 @@ export class StatsController {
       .getRawMany();
     
     let statusRes = await getManager().createQueryBuilder()
-      .select("entry_status_item.value", "value")
-      .addSelect("status_item.name", "name")
-      .from("entry_status_item", "entry_status_item")
-      .leftJoin("entry", "entry", "entry.id=entry_status_item.\"entryId\"")
-      .leftJoin("status_item", "status_item", "status_item.id=entry_status_item.\"statusItemId\"")
+      .select("entry_status.value", "value")
+      .addSelect("status.name", "name")
+      .from("entry_status", "entry_status")
+      .leftJoin("entry", "entry", "entry.id=entry_status.\"entryId\"")
+      .leftJoin("status", "status", "status.id=entry_status.\"statusItemId\"")
       .where("entry.\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
              { from: from.getTime() / 1000, to: to.getTime() / 1000 })
       .getRawMany();

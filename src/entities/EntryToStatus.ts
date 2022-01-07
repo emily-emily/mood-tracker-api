@@ -1,10 +1,10 @@
 import { IsInt, IsNumber } from "class-validator";
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, BaseEntity } from "typeorm";
 import { Entry } from "./Entry";
-import { StatusItem } from "./StatusItem";
+import { Status } from "./Status";
 
-@Entity({ name: 'entry_status_item' })
-export class EntryToStatusItem extends BaseEntity {
+@Entity({ name: 'entry_status' })
+export class EntryToStatus extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
 
@@ -23,8 +23,8 @@ export class EntryToStatusItem extends BaseEntity {
   @ManyToOne(() => Entry, entry => entry.statuses)
   public entry!: Entry;
 
-  @ManyToOne(() => StatusItem, statusItem => statusItem.statuses)
-  public statusItem!: StatusItem;
+  @ManyToOne(() => Status, statusItem => statusItem.statuses)
+  public statusItem!: Status;
 
   @CreateDateColumn()
   public createdAt!: Date;

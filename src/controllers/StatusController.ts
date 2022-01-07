@@ -1,23 +1,30 @@
 import { Body, Get, HttpCode, JsonController, Post } from "routing-controllers";
-import { StatusItem } from "../entities/StatusItem";
+import { Status } from "../entities/Status";
 import { getManager } from "typeorm";
 
 @JsonController("/status")
 export class StatusController {
+  public static async getId(status: string) {
+    return Status.createQueryBuilder("status")
+      .select("status.id")
+      .where("status.name=:name", { name: status })
+      .getRawOne();
+  }
+
   @Get("/item")
   public async getAll() {
     const query = getManager().createQueryBuilder()
       .select("*")
-      .from("status_item", "status_item");
+      .from("status", "status");
     return query.getRawMany();
   }
 
   @HttpCode(201)
   @Post("/item")
   public async createStatusItem(
-    @Body({ required: true }) items : StatusItem[]
+    @Body({ required: true }) items : Status[]
   ) {
-    const query = StatusItem.createQueryBuilder("status_item")
+    const query = Status.createQueryBuilder("status")
       .insert()
       .values(items);
     try {

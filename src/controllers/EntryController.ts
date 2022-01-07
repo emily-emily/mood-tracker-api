@@ -2,8 +2,8 @@ import { Body, Get, HttpCode, JsonController, Post } from "routing-controllers";
 import { Activity } from "../entities/Activity";
 import { Entry } from "../entities/Entry";
 import { getConnection, getManager } from "typeorm";
-import { StatusItem } from "../entities/StatusItem";
-import { EntryToStatusItem } from "../entities/EntryToStatusItem";
+import { Status } from "../entities/Status";
+import { EntryToStatus } from "../entities/EntryToStatus";
 
 @JsonController("/entry")
 export class EntryController {
@@ -88,17 +88,17 @@ export class EntryController {
             if (!status.name || !status.value) {
               throw { error: "Please follow this object structure for each status: {name, value}" };
             }
-            let s = await queryRunner.manager.findOne(StatusItem, {name: status.name});
+            let s = await queryRunner.manager.findOne(Status, {name: status.name});
   
             if (s === undefined) {
               throw { error: "Status item not found: '" + status.name + "'" };
             }
   
-            let entryToStatusItem = new EntryToStatusItem();
-            entryToStatusItem.entry = entry;
-            entryToStatusItem.statusItem = s;
-            entryToStatusItem.value = status.value;
-            statuses.push(entryToStatusItem);
+            let entryToStatus = new EntryToStatus();
+            entryToStatus.entry = entry;
+            entryToStatus.statusItem = s;
+            entryToStatus.value = status.value;
+            statuses.push(entryToStatus);
           }
         }
 

@@ -3,7 +3,7 @@ import express from "express";
 import { useExpressServer } from 'routing-controllers';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { connectDb } from "./start/db";
+import { connectDb } from "./helpers/db";
 import { ActivityController } from './controllers/ActivityController';
 import { EntryController } from './controllers/EntryController';
 import { StatusController } from './controllers/StatusController';

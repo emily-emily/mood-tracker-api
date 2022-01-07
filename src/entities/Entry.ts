@@ -1,7 +1,7 @@
 import { IsNumber } from "class-validator";
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany, BaseEntity } from "typeorm";
 import { Activity } from "./Activity";
-import { EntryToStatusItem } from "./EntryToStatusItem";
+import { EntryToStatus } from "./EntryToStatus";
 
 @Entity({ name: 'entry' })
 export class Entry extends BaseEntity {
@@ -16,8 +16,8 @@ export class Entry extends BaseEntity {
   @JoinTable({ name: "entry_activity" })
   public activities!: Activity[];
 
-  @OneToMany(() => EntryToStatusItem, status => status.entry)
-  public statuses!: EntryToStatusItem[];
+  @OneToMany(() => EntryToStatus, status => status.entry)
+  public statuses!: EntryToStatus[];
 
   @CreateDateColumn()
   public createdAt!: Date;

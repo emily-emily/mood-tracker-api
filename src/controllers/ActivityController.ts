@@ -4,6 +4,13 @@ import { getManager } from 'typeorm';
 
 @JsonController("/activity")
 export class ActivityController {
+  public async getId(activity: string) {
+    return Activity.createQueryBuilder("activity")
+      .select("activity.id")
+      .where("activity.name=:name", { name: activity })
+      .getRawOne();
+  }
+
   @Get("")
   public async getAll() {
     const query = getManager().createQueryBuilder()

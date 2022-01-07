@@ -1,9 +1,9 @@
 import { IsString } from "class-validator";
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, BaseEntity } from "typeorm";
-import { EntryToStatusItem } from "./EntryToStatusItem";
+import { EntryToStatus } from "./EntryToStatus";
 
-@Entity({ name: 'status_item' })
-export class StatusItem extends BaseEntity {
+@Entity({ name: 'status' })
+export class Status extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
 
@@ -11,8 +11,8 @@ export class StatusItem extends BaseEntity {
   @Column()
   public name: string = "";
 
-  @OneToMany(() => EntryToStatusItem, status => status.entry)
-  public statuses!: EntryToStatusItem[];
+  @OneToMany(() => EntryToStatus, status => status.entry)
+  public statuses!: EntryToStatus[];
 
   @CreateDateColumn()
   public createdAt!: Date;
