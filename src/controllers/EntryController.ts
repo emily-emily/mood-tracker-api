@@ -85,7 +85,7 @@ export class EntryController {
         let statuses = [];
         if (item.statuses) {
           for (let status of item.statuses) {
-            if (!status.name || !status.value) {
+            if (status.name === undefined || status.value === undefined) {
               throw { error: "Please follow this object structure for each status: {name, value}" };
             }
             let s = await queryRunner.manager.findOne(Status, {name: status.name});

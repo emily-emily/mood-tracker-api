@@ -5,10 +5,11 @@ import { getManager } from "typeorm";
 @JsonController("/status")
 export class StatusController {
   public static async getId(status: string) {
-    return Status.createQueryBuilder("status")
-      .select("status.id")
+    const res = await Status.createQueryBuilder("status")
+      .select("status.id", "id")
       .where("status.name=:name", { name: status })
       .getRawOne();
+    return res["id"];
   }
 
   @Get("/item")

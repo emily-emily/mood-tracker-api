@@ -1,6 +1,7 @@
 import { Body, Get, InternalServerError, JsonController } from "routing-controllers";
 import { getManager } from "typeorm";
 import { Entry } from "../entities/Entry";
+import * as stats from "../helpers/stats";
 import { StatusController } from "./StatusController";
 
 @JsonController("/stats")
@@ -76,5 +77,46 @@ export class StatsController {
       console.log("statusRes:", statusRes);
       throw new InternalServerError("Unable to get results from db.");
     }
+  }
+
+  @Get("/plotData")
+  public async getPlotData(
+    @Body({ required: true }) body: { from: number, to: number, status: string }
+  ) {
+    let from = body.from ? new Date(body.from * 1000) : new Date(0);
+    let to = body.to ? new Date(body.to * 1000) : new Date();
+
+    let x : any[] = [];
+    let y : number[] = [];
+
+    if (body.status === "mood") {
+      const query = Entry.createQueryBuilder("entry")
+        .select("entry.mood", "mood")
+        .addSelect("entry.createdAt", "date")
+        .where("entry.\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
+               { from: from.getTime() / 1000, to: to.getTime() / 1000 });
+      let res = await query.getRawMany();
+      x = res.map(entry => entry.date);
+      y = res.map(entry => entry.mood);
+    }
+    else {
+      const statusId = await StatusController.getId(body.status);
+      const query = getManager().createQueryBuilder()
+      .select("entry_status.value", "value")
+      .addSelect("entry.createdAt", "date")
+      .from("entry_status", "entry_status")
+      .leftJoin("entry", "entry", "entry.id=entry_status.\"entryId\"")
+      .where("entry_status.\"statusItemId\"=:statusId", { statusId: statusId })
+      .andWhere("entry.\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
+                { from: from.getTime() / 1000, to: to.getTime() / 1000 });
+      let res = await query.getRawMany();
+      x = res.map(entry => entry.date);
+      y = res.map(entry => entry.value);
+    }
+
+    x = stats.reducePoints(x, 20, false);
+    y = stats.reducePoints(y, 20, true);
+
+    return { result: "success", x: x, y: y };
   }
 }

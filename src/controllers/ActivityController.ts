@@ -5,10 +5,11 @@ import { getManager } from 'typeorm';
 @JsonController("/activity")
 export class ActivityController {
   public async getId(activity: string) {
-    return Activity.createQueryBuilder("activity")
-      .select("activity.id")
+    const res = await Activity.createQueryBuilder("activity")
+      .select("activity.id", "id")
       .where("activity.name=:name", { name: activity })
       .getRawOne();
+    return res["id"];
   }
 
   @Get("")
