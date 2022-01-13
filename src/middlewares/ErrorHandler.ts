@@ -4,7 +4,9 @@ import { Middleware, ExpressErrorMiddlewareInterface } from "routing-controllers
 export class ErrorHandler implements ExpressErrorMiddlewareInterface {
   error(err: any, req: any, res: any, next: (err: any) => any) {
     console.error(err.stack);
-    err.result = "error";
-    res.status(err.httpCode || 500).send(err);
+    res.status(err.httpCode || 500).send({
+      reuslt: "error",
+      message: err.message
+    });
   }
 }
