@@ -17,13 +17,7 @@ export class EntryController {
 
     // get activities
     let actitivityIds : number[];
-    try {
-      actitivityIds = await Activity.findManyIdByName(body.activities);
-    }
-    catch(err : any) {
-      err.result = "error";
-      throw err;
-    }
+    actitivityIds = await Activity.findManyIdByName(body.activities);
     
     let query = getManager().createQueryBuilder()
       .select("entry.*")
@@ -119,8 +113,6 @@ export class EntryController {
     }
     catch(err : any) {
       await queryRunner.rollbackTransaction();
-      err.result = "error";
-      console.log("Error: ", err)
       await queryRunner.release();
       throw (err);
     }

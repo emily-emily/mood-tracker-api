@@ -8,6 +8,7 @@ import { ActivityController } from './controllers/ActivityController';
 import { EntryController } from './controllers/EntryController';
 import { StatusController } from './controllers/StatusController';
 import { StatsController } from './controllers/StatController';
+import { ErrorHandler } from './middlewares/ErrorHandler';
 
 async function launch() {
   try {
@@ -23,13 +24,9 @@ async function launch() {
   app.use(bodyParser.json());
 
   useExpressServer(app, {
-    controllers: [ActivityController, EntryController, StatusController, StatsController],
+    middlewares: [ErrorHandler],
+    defaultErrorHandler: false
   });
-
-  app.use((err: any, req: any, res: any, next: any) => {
-    console.error(err.stack)
-    res.status(500).send('Something broke!')
-  })
 
   // run express application
   let port = parseInt(process.env.PORT || "");

@@ -12,7 +12,7 @@ export class StatusController {
     return res["id"];
   }
 
-  @Get("/item")
+  @Get("/")
   public async getAll() {
     const query = getManager().createQueryBuilder()
       .select("*")
@@ -21,20 +21,14 @@ export class StatusController {
   }
 
   @HttpCode(201)
-  @Post("/item")
+  @Post("/")
   public async createStatusItem(
     @Body({ required: true }) items : Status[]
   ) {
     const query = Status.createQueryBuilder("status")
       .insert()
       .values(items);
-    try {
-      await query.execute();
-      return { result: "success" };
-    }
-    catch(err: any) {
-      err.result = "error";
-      throw err;
-    }
+    await query.execute();
+    return { result: "success" };
   }
 }

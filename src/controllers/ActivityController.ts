@@ -28,13 +28,7 @@ export class ActivityController {
     const query = Activity.createQueryBuilder("activity")
       .insert()
       .values(activities);
-    try {
-      await query.execute();
-      return { result: "success" };
-    }
-    catch(err: any) {
-      err.result = "error";
-      throw err;
-    }
+    await query.execute();
+    return { result: "success" };
   }
 }

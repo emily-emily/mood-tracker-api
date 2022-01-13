@@ -27,3 +27,4 @@ Note that this compares the current entities (path specified in `ormconfig.json`
 ## Misc. TILs
 - For typescript type errors that would otherwise work in javascript, ignore them using `// @ts-ignore` in the line immediately preceding the line with the error.
 - In Javascript, `Date.getTime` returns the unix timestamp in milliseconds, and Postgres `TO_TIMESTAMP` takes unix timestamp in seconds.
+- Express middleware: calling `next()` takes you to the next item, `next('route')` to the next route, and `next` with anything but `'route'` takes you to the first error handler (skipping other middleware). For `routing-controllers`, we can include our custom error handler as a middleware, but we must disable the default error handler (since that runs first) in `createExpressServer` or `useExpressServer` (still unclear of the difference between those). Set `defaultErrorHandler: false` in options.
