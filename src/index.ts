@@ -9,6 +9,7 @@ import statusRouter from './routes/StatusRouter';
 import entryRouter from './routes/EntryRouter';
 import statsRouter from './routes/StatsRouter';
 import userRouter from './routes/UserRouter';
+import verifyToken from './helpers/auth';
 
 async function launch() {
   try {
@@ -26,7 +27,7 @@ async function launch() {
 
   app.use("/user", userRouter);
 
-  // jwt verification
+  app.use("/", verifyToken)
 
   app.use("/activity", activityRouter);
   app.use("/status", statusRouter);
