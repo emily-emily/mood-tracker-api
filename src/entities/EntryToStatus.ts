@@ -14,7 +14,7 @@ export class EntryToStatus extends BaseEntity {
 
   @IsInt({ always: true })
   @Column({ type: "int" })
-  public statusItemId!: number;
+  public statusId!: number;
 
   @IsNumber()
   @Column({ type: "real" })
@@ -23,8 +23,8 @@ export class EntryToStatus extends BaseEntity {
   @ManyToOne(() => Entry, entry => entry.statuses)
   public entry!: Entry;
 
-  @ManyToOne(() => Status, statusItem => statusItem.statuses)
-  public statusItem!: Status;
+  @ManyToOne(() => Status, status => status.entries)
+  public status!: Status;
 
   @CreateDateColumn()
   public createdAt!: Date;

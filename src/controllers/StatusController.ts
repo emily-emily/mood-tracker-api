@@ -2,14 +2,6 @@ import { Status } from "../entities/Status";
 import { getManager } from "typeorm";
 import MyError from "../helpers/MyError";
 
-export const getId = async (activity: string) => {
-  const res = await Status.createQueryBuilder("status")
-    .select("status.id", "id")
-    .where("status.name=:name", { name: status })
-    .getRawOne();
-  return res["id"];
-}
-
 export const getAll = async () => {
   const activities = await getManager().createQueryBuilder()
     .select("*")

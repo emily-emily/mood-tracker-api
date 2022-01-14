@@ -1,12 +1,20 @@
-import { IsNumber } from "class-validator";
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany, BaseEntity } from "typeorm";
+import { IsInt, IsNumber } from "class-validator";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany, BaseEntity, ManyToOne } from "typeorm";
 import { Activity } from "./Activity";
 import { EntryToStatus } from "./EntryToStatus";
+import { User } from "./User";
 
 @Entity({ name: 'entry' })
 export class Entry extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
+
+  @IsInt({ always: true })
+  @Column({ type: "int" })
+  public userId!: number;
+
+  @ManyToOne(() => User, user => user.entries)
+  public user!: User;
 
   @IsNumber()
   @Column({ type: "real" })

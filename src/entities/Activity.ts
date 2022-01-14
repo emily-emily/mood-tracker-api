@@ -1,10 +1,19 @@
-import { IsString } from "class-validator";
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, BaseEntity } from "typeorm";
+import { IsInt, IsString } from "class-validator";
+import MyError from "../helpers/MyError";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, BaseEntity, ManyToOne } from "typeorm";
+import { User } from "./User";
 
 @Entity({ name: 'activity' })
 export class Activity extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
+
+  @IsInt({ always: true })
+  @Column({ type: "int" })
+  public userId!: number;
+
+  @ManyToOne(() => User, user => user.activities)
+  public user!: User;
 
   @IsString({ always: true })
   @Column()
@@ -19,14 +28,14 @@ export class Activity extends BaseEntity {
   // finds an activity by its name. Returns undefined if no such activity is found
   public static async findByName(name : string) {
     let activity = await Activity.findOne({name: name});
-    if (activity === undefined) throw { error: "Activity not found: '" + name + "'" };
+    if (activity === undefined) throw new MyError("Activity not found: '" + name + "'");
     return activity;
   }
 
   // finds an activity id
   public static async findIdByName(name : string) {
     let activity = await Activity.findOne({name: name});
-    if (activity === undefined) throw { error: "Activity not found: '" + name + "'" };
+    if (activity === undefined) throw new MyError("Activity not found: '" + name + "'");
     return activity?.id;
   }
 

@@ -2,7 +2,7 @@ import MyError from "../helpers/MyError";
 import { getManager } from "typeorm";
 import { Entry } from "../entities/Entry";
 import * as stats from "../helpers/stats";
-import * as StatusController from "./StatusController";
+import { Status } from "../entities/Status";
 
 export const getLastEntryDate = async () => {
   let res = await Entry.createQueryBuilder("entry")
@@ -88,7 +88,7 @@ export const getPlotData = async (fromUnix: number, toUnix: number, status: stri
     y = res.map(entry => entry.mood);
   }
   else {
-    const statusId = await StatusController.getId(status);
+    const statusId = await Status.findIdByName(status);
     const query = getManager().createQueryBuilder()
     .select("entry_status.value", "value")
     .addSelect("entry.createdAt", "date")
