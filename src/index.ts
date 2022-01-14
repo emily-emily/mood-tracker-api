@@ -8,6 +8,7 @@ import activityRouter from './routes/ActivityRouter';
 import statusRouter from './routes/StatusRouter';
 import entryRouter from './routes/EntryRouter';
 import statsRouter from './routes/StatsRouter';
+import userRouter from './routes/UserRouter';
 
 async function launch() {
   try {
@@ -22,6 +23,10 @@ async function launch() {
 
   app.use(cors());
   app.use(bodyParser.json());
+
+  app.use("/user", userRouter);
+
+  // jwt verification
 
   app.use("/activity", activityRouter);
   app.use("/status", statusRouter);
