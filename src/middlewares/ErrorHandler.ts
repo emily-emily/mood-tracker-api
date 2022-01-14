@@ -1,12 +1,9 @@
-import { Middleware, ExpressErrorMiddlewareInterface } from "routing-controllers";
-
-@Middleware({ type: "after" })
-export class ErrorHandler implements ExpressErrorMiddlewareInterface {
-  error(err: any, req: any, res: any, next: (err: any) => any) {
+export const errorHandler = (err: any, req: any, res: any, next: (err: any) => any) => {
+  if (err.stack) {
     console.error(err.stack);
-    res.status(err.httpCode || 500).send({
-      reuslt: "error",
-      message: err.message
-    });
   }
+  res.status(err.status || 500).send({
+    result: "error",
+    message: err.message
+  });
 }

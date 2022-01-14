@@ -1,14 +1,13 @@
 import 'reflect-metadata';
 import express from "express";
-import { useExpressServer } from 'routing-controllers';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { connectDb } from "./helpers/db";
-import { ActivityController } from './controllers/ActivityController';
-import { EntryController } from './controllers/EntryController';
-import { StatusController } from './controllers/StatusController';
-import { StatsController } from './controllers/StatController';
-import { ErrorHandler } from './middlewares/ErrorHandler';
+import { errorHandler } from './middlewares/ErrorHandler';
+import activityRouter from './routes/ActivityRouter';
+import statusRouter from './routes/StatusRouter';
+import entryRouter from './routes/EntryRouter';
+import statsRouter from './routes/StatsRouter';
 
 async function launch() {
   try {
@@ -16,6 +15,7 @@ async function launch() {
   }
   catch (err) {
     console.log(err);
+    return;
   }
   
   const app = express();
@@ -23,10 +23,12 @@ async function launch() {
   app.use(cors());
   app.use(bodyParser.json());
 
-  useExpressServer(app, {
-    middlewares: [ErrorHandler],
-    defaultErrorHandler: false
-  });
+  app.use("/activity", activityRouter);
+  app.use("/status", statusRouter);
+  app.use("/entry", entryRouter);
+  app.use("/stats", statsRouter);
+
+  app.use(errorHandler);
 
   // run express application
   let port = parseInt(process.env.PORT || "");
