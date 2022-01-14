@@ -1,4 +1,4 @@
-import { IsInt, IsString } from "class-validator";
+import { IsString } from "class-validator";
 import MyError from "../helpers/MyError";
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, BaseEntity, ManyToOne } from "typeorm";
 import { User } from "./User";
@@ -8,9 +8,8 @@ export class Activity extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
 
-  @IsInt({ always: true })
-  @Column({ type: "int" })
-  public userId!: number;
+  @Column({ type: "uuid" })
+  public userId!: string;
 
   @ManyToOne(() => User, user => user.activities)
   public user!: User;
@@ -26,31 +25,31 @@ export class Activity extends BaseEntity {
   public updatedAt!: Date;
 
   // finds an activity by its name. Returns undefined if no such activity is found
-  public static async findByName(name : string) {
+  public static async findByName(uid: string, name: string) {
     let activity = await Activity.findOne({name: name});
     if (activity === undefined) throw new MyError("Activity not found: '" + name + "'");
     return activity;
   }
 
   // finds an activity id
-  public static async findIdByName(name : string) {
+  public static async findIdByName(uid: string, name: string) {
     let activity = await Activity.findOne({name: name});
     if (activity === undefined) throw new MyError("Activity not found: '" + name + "'");
     return activity?.id;
   }
 
-  public static async findManyByName(names : string[]) {
+  public static async findManyByName(uid: string, names : string[]) {
     let activities = [];
     for (let name of names) {
-      activities.push(await this.findByName(name));
+      activities.push(await this.findByName(uid, name));
     }
     return activities;
   }
 
-  public static async findManyIdByName(names : string[]) {
+  public static async findManyIdByName(uid: string, names : string[]) {
     let activities = [];
     for (let name of names) {
-      activities.push(await this.findIdByName(name));
+      activities.push(await this.findIdByName(uid, name));
     }
     return activities;
   }

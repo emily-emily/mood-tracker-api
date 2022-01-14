@@ -8,7 +8,7 @@ const verifyToken = (req: any, res: any, next: any) => {
     if (req.token === undefined) {
       throw new MyError("Unauthorized", 401);
     }
-    jwt.verify(req.token, process.env.JWT_SECRET);
+    req.payload = jwt.verify(req.token, process.env.JWT_SECRET);
     next();
   }
   catch(err) {

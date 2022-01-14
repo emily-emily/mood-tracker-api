@@ -4,35 +4,38 @@ import { Entry } from "../entities/Entry";
 import * as stats from "../helpers/stats";
 import { Status } from "../entities/Status";
 
-export const getLastEntryDate = async () => {
+export const getLastEntryDate = async (uid: string) => {
   let res = await Entry.createQueryBuilder("entry")
     .select("entry.createdAt", "createdAt")
+    .where("entry.\"userId\"=:uid", { uid: uid })
     .orderBy("\"createdAt\"", "DESC")
     .getRawOne();
   
   return res && res["createdAt"];
 }
 
-export const getLastActivityOccurrence = async (activity: string) => {
+export const getLastActivityOccurrence = async (uid: string, activity: string) => {
   let res = await getManager().createQueryBuilder()
     .select("entry.createdAt", "createdAt")
     .from("entry_activity", "entry_activity")
     .leftJoin("entry", "entry", "entry.id=entry_activity.\"entryId\"")
     .leftJoin("activity", "activity", "activity.id=entry_activity.\"activityId\"")
-    .where("activity.name=:name", { name: activity })
+    .where("activity.\"userId\"=:uid", { uid: uid })
+    .andWhere("activity.name=:name", { name: activity })
     .orderBy("\"createdAt\"", "DESC")
     .getRawOne();
   
   return res && res["createdAt"];
 }
 
-export const getAvg = async (fromUnix: number, toUnix: number) => {
+export const getAvg = async (uid: string, fromUnix: number, toUnix: number) => {
   let from = fromUnix ? new Date(fromUnix * 1000) : new Date(0);
   let to = toUnix ? new Date(toUnix * 1000) : new Date();
   
   let moodRes = await Entry.createQueryBuilder("entry")
     .select("entry.mood", "mood")
-    .where("entry.\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
+    .where("entry.\"userId\"=:uid", { uid: uid })
+    .andWhere("entry.\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
             { from: from.getTime() / 1000, to: to.getTime() / 1000 })
     .getRawMany();
   
@@ -41,8 +44,9 @@ export const getAvg = async (fromUnix: number, toUnix: number) => {
     .addSelect("status.name", "name")
     .from("entry_status", "entry_status")
     .leftJoin("entry", "entry", "entry.id=entry_status.\"entryId\"")
-    .leftJoin("status", "status", "status.id=entry_status.\"statusItemId\"")
-    .where("entry.\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
+    .leftJoin("status", "status", "status.id=entry_status.\"statusId\"")
+    .where("status.\"userId\"=:uid", { uid: uid })
+    .andWhere("entry.\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
             { from: from.getTime() / 1000, to: to.getTime() / 1000 })
     .getRawMany();
 
@@ -70,7 +74,7 @@ export const getAvg = async (fromUnix: number, toUnix: number) => {
   }
 }
 
-export const getPlotData = async (fromUnix: number, toUnix: number, status: string) => {
+export const getPlotData = async (uid: string, fromUnix: number, toUnix: number, status: string) => {
   let from = fromUnix ? new Date(fromUnix * 1000) : new Date(0);
   let to = toUnix ? new Date(toUnix * 1000) : new Date();
 
@@ -81,6 +85,7 @@ export const getPlotData = async (fromUnix: number, toUnix: number, status: stri
     const query = Entry.createQueryBuilder("entry")
       .select("entry.mood", "mood")
       .addSelect("entry.createdAt", "date")
+      .where("entry.\"userId\"=:uid", { uid: uid })
       .where("entry.\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
               { from: from.getTime() / 1000, to: to.getTime() / 1000 });
     let res = await query.getRawMany();
@@ -94,7 +99,8 @@ export const getPlotData = async (fromUnix: number, toUnix: number, status: stri
     .addSelect("entry.createdAt", "date")
     .from("entry_status", "entry_status")
     .leftJoin("entry", "entry", "entry.id=entry_status.\"entryId\"")
-    .where("entry_status.\"statusItemId\"=:statusId", { statusId: statusId })
+    .where("entry.\"userId\"=:uid", { uid: uid })
+    .andWhere("entry_status.\"statusId\"=:statusId", { statusId: statusId })
     .andWhere("entry.\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
               { from: from.getTime() / 1000, to: to.getTime() / 1000 });
     let res = await query.getRawMany();

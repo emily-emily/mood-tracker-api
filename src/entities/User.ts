@@ -1,4 +1,5 @@
 import { IsEmail, IsString } from "class-validator";
+import MyError from "../helpers/MyError";
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, BaseEntity, OneToMany } from "typeorm";
 import { Activity } from "./Activity";
 import { Entry } from "./Entry";
@@ -34,4 +35,10 @@ export class User extends BaseEntity {
 
   @UpdateDateColumn()
   public updatedAt!: Date;
+
+  public static async findById(uid: string) {
+    let user = await User.findOne(uid);
+    if (user === undefined) throw new MyError("User not found");
+    return user;
+  }
 }

@@ -4,15 +4,16 @@ import { getConnection, getManager } from "typeorm";
 import { Status } from "../entities/Status";
 import { EntryToStatus } from "../entities/EntryToStatus";
 import MyError from "../helpers/MyError";
+import { User } from "../entities/User";
 
-export const getEntry = async (fromUnix: number, toUnix: number, max: number, activities: string[]) => {
+export const getEntry = async (uid: string, fromUnix: number, toUnix: number, max: number, activities: string[]) => {
   let from = fromUnix ? new Date(fromUnix * 1000) : new Date(0);
   let to = toUnix ? new Date(toUnix * 1000) : new Date();
   if (!activities) activities = [];
 
   // get activities
   let actitivityIds : number[];
-  actitivityIds = await Activity.findManyIdByName(activities);
+  actitivityIds = await Activity.findManyIdByName(uid, activities);
   
   let query = getManager().createQueryBuilder()
     .select("entry.*")
@@ -46,7 +47,7 @@ export const getEntry = async (fromUnix: number, toUnix: number, max: number, ac
   return query.getRawMany();
 }
 
-export const create = async (items : [{date: number, mood: number, activities: [string], statuses: [{name: string, value: number}]}]) => {
+export const create = async (uid: string, items: [{date: number, mood: number, activities: [string], statuses: [{name: string, value: number}]}]) => {
   const connection = getConnection();
   const queryRunner = connection.createQueryRunner();
   await queryRunner.connect();
@@ -60,7 +61,7 @@ export const create = async (items : [{date: number, mood: number, activities: [
       let activities = [];
       if (item.activities) {
         for (let activityName of item.activities) {
-          let a = await Activity.findByName(activityName);
+          let a = await Activity.findByName(uid, activityName);
 
           activities.push(a);
         }
@@ -73,7 +74,7 @@ export const create = async (items : [{date: number, mood: number, activities: [
           if (status.name === undefined || status.value === undefined) {
             throw new MyError("Please follow this object structure for each status: {name, value}");
           }
-          let s = await queryRunner.manager.findOne(Status, {name: status.name});
+          let s = await Status.findByName(uid, status.name);
 
           if (s === undefined) {
             throw new MyError("Status item not found: '" + status.name + "'", 400);
@@ -81,13 +82,14 @@ export const create = async (items : [{date: number, mood: number, activities: [
 
           let entryToStatus = new EntryToStatus();
           entryToStatus.entry = entry;
-          entryToStatus.statusItem = s;
+          entryToStatus.status = s;
           entryToStatus.value = status.value;
           statuses.push(entryToStatus);
         }
       }
 
       // save entry
+      entry.user = await User.findById(uid);
       entry.mood = item.mood;
       entry.createdAt = item.date ? new Date(item.date * 1000) : new Date();
       entry.activities = activities

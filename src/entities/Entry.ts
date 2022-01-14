@@ -1,4 +1,4 @@
-import { IsInt, IsNumber } from "class-validator";
+import { IsNumber } from "class-validator";
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable, OneToMany, BaseEntity, ManyToOne } from "typeorm";
 import { Activity } from "./Activity";
 import { EntryToStatus } from "./EntryToStatus";
@@ -9,9 +9,8 @@ export class Entry extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
 
-  @IsInt({ always: true })
-  @Column({ type: "int" })
-  public userId!: number;
+  @Column({ type: "uuid" })
+  public userId!: string;
 
   @ManyToOne(() => User, user => user.entries)
   public user!: User;
