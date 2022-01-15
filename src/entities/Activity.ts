@@ -24,17 +24,17 @@ export class Activity extends BaseEntity {
   @UpdateDateColumn()
   public updatedAt!: Date;
 
-  // finds an activity by its name. Returns undefined if no such activity is found
+  // finds an activity by its name. Throws error if no such activity is found
   public static async findByName(uid: string, name: string) {
-    let activity = await Activity.findOne({name: name});
-    if (activity === undefined) throw new MyError("Activity not found: '" + name + "'");
+    let activity = await Activity.findOne({ userId: uid, name: name });
+    if (activity === undefined) throw new MyError("Activity not found: '" + name + "'", 400);
     return activity;
   }
 
   // finds an activity id
   public static async findIdByName(uid: string, name: string) {
-    let activity = await Activity.findOne({name: name});
-    if (activity === undefined) throw new MyError("Activity not found: '" + name + "'");
+    let activity = await Activity.findOne({ userId: uid, name: name });
+    if (activity === undefined) throw new MyError("Activity not found: '" + name + "'", 400);
     return activity?.id;
   }
 

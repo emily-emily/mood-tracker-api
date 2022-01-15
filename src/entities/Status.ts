@@ -31,14 +31,14 @@ export class Status extends BaseEntity {
   // finds a status by its name. Returns undefined if no such activity is found
   public static async findByName(uid: string, name: string) {
     let status = await Status.findOne({ userId: uid, name: name });
-    if (status === undefined) throw new MyError("Status not found: '" + name + "'");
+    if (status === undefined) throw new MyError("Status not found: '" + name + "'", 400);
     return status;
   }
 
   // finds a status id
-  public static async findIdByName(name : string) {
-    let status = await Status.findOne({name: name});
-    if (status === undefined) throw new MyError("Status not found: '" + name + "'");
+  public static async findIdByName(uid: string, name : string) {
+    let status = await Status.findOne({ userId: uid, name: name });
+    if (status === undefined) throw new MyError("Status not found: '" + name + "'", 400);
     return status?.id;
   }
 }

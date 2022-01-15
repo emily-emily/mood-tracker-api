@@ -3,6 +3,7 @@ import { getManager } from "typeorm";
 import { Entry } from "../entities/Entry";
 import * as stats from "../helpers/stats";
 import { Status } from "../entities/Status";
+import { Activity } from "../entities/Activity";
 
 export const getLastEntryDate = async (uid: string) => {
   let res = await Entry.createQueryBuilder("entry")
@@ -15,17 +16,22 @@ export const getLastEntryDate = async (uid: string) => {
 }
 
 export const getLastActivityOccurrence = async (uid: string, activity: string) => {
+  const activityId = await Activity.findIdByName(uid, activity);
+
   let res = await getManager().createQueryBuilder()
     .select("entry.createdAt", "createdAt")
     .from("entry_activity", "entry_activity")
     .leftJoin("entry", "entry", "entry.id=entry_activity.\"entryId\"")
-    .leftJoin("activity", "activity", "activity.id=entry_activity.\"activityId\"")
     .where("activity.\"userId\"=:uid", { uid: uid })
-    .andWhere("activity.name=:name", { name: activity })
+    .andWhere("entry_activity.\"activityId\"=:activityId", { activityId: activityId })
     .orderBy("\"createdAt\"", "DESC")
     .getRawOne();
   
-  return res && res["createdAt"];
+  if (!res) {
+    throw new MyError("No records found for activity: " + activity);
+  }
+  
+  return res["createdAt"];
 }
 
 export const getAvg = async (uid: string, fromUnix: number, toUnix: number) => {
@@ -86,14 +92,14 @@ export const getPlotData = async (uid: string, fromUnix: number, toUnix: number,
       .select("entry.mood", "mood")
       .addSelect("entry.createdAt", "date")
       .where("entry.\"userId\"=:uid", { uid: uid })
-      .where("entry.\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
+      .andWhere("entry.\"createdAt\" BETWEEN TO_TIMESTAMP(:from) AND TO_TIMESTAMP(:to)",
               { from: from.getTime() / 1000, to: to.getTime() / 1000 });
     let res = await query.getRawMany();
     x = res.map(entry => entry.date);
     y = res.map(entry => entry.mood);
   }
   else {
-    const statusId = await Status.findIdByName(status);
+    const statusId = await Status.findIdByName(uid, status);
     const query = getManager().createQueryBuilder()
     .select("entry_status.value", "value")
     .addSelect("entry.createdAt", "date")
